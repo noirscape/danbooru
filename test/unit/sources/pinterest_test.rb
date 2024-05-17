@@ -85,6 +85,7 @@ module Sources
         assert(Source::URL.page_url?("https://jp.pinterest.com/pin/551409548144250908/"))
 
         assert(Source::URL.page_url?("https://www.pinterest.com/pin/AVBZICDCT7hRTla-jHiJ6w2eVUK1wuq7WRYG8P_uqZIziXisjxatHMA/"))
+        assert(Source::URL.page_url?("https://www.pinterest.com/pin/580612576989556785/sent/?invite_code=9e94baa7faae405d84a7787593fa46fd&sender=580612714368486682&sfo=1"))
         assert(Source::URL.page_url?("https://www.pinterest.co.uk/pin/super-mario--600175087827955508/"))
 
         assert(Source::URL.profile_url?("https://pinterest.com/uchihajake/"))
@@ -98,7 +99,8 @@ module Sources
         assert(Source::URL.profile_url?("https://pl.pinterest.com/uchihajake/"))
         assert(Source::URL.profile_url?("https://www.pinterest.jp/totikuma/自作イラスト-my-illustrations/"))
 
-        refute(Source::URL.profile_url?("https://www.pinterest.com/ideas/people/935950727927/"))
+        assert_not(Source::URL.profile_url?("https://www.pinterest.com/ideas/people/935950727927/"))
+        assert_not(Source::URL.profile_url?("https://api.pinterest.com/url_shortener/4A1N0Rd5W/redirect/"))
       end
     end
   end

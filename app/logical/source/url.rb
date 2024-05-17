@@ -97,6 +97,12 @@ module Source
       Source::URL::NaverPost,
       Source::URL::Xiaohongshu,
       Source::URL::Patreon,
+      Source::URL::Blogger,
+      Source::URL::Vk,
+      Source::URL::Google,
+      Source::URL::Youtube,
+      Source::URL::Bcy,
+      Source::URL::URLShortener,
     ]
 
     # Parse a URL into a subclass of Source::URL, or raise an exception if the URL is not a valid HTTP or HTTPS URL.
@@ -128,13 +134,17 @@ module Source
       raise NotImplementedError
     end
 
-    # Return the extractor corresponding to this URL. By default, it's the Source::Extractor subclass with the same name
+    # Return the extractor class to use for this URL. By default, it's the Source::Extractor subclass with the same name
     # as this Source::URL subclass. Subclasses can override this to provide a different extractor.
+    def extractor_class
+      "Source::Extractor::#{self.class.name.demodulize}".safe_constantize
+    end
+
+    # Return the extractor corresponding to this URL.
     #
     # @param options [Hash] The options to pass to the extractor.
     # @return [Source::Extractor, nil] The extractor for this URL, or nil if one doesn't exist.
     def extractor(**options)
-      extractor_class = "Source::Extractor::#{self.class.name.demodulize}".safe_constantize
       extractor_class&.new(self, **options)
     end
 
@@ -163,7 +173,7 @@ module Source
     #
     # @return [Boolean]
     def image_url?
-      file_ext.to_s.downcase.in?(%w[jpg jpeg png gif webp webm avif mp4 swf])
+      file_ext.to_s.downcase.in?(%w[jpg jpeg png gif webp webm avif mp4 swf flac mp3 ogg wav])
     end
 
     # True if the URL is a work page URL.
@@ -236,27 +246,31 @@ module Source
       nil
     end
 
-    # True if the URL is considered a "bad source". A bad source is an URL that should never be used as the source of a
+    # Determine if the URL is considered a "bad source". A bad source is an URL that should never be used as the source of a
     # post because it's never a valid source. For example, a profile URL or some other random URL that isn't a page URL
     # or an image URL.
     #
-    # Posts will be tagged "bad_source" if this returns true for the post's source URL.
+    # Posts will be tagged "bad_source" if this returns true for the post's source URL. If this returns false, then the
+    # bad_source tag will be removed. If this returns nil, then the bad_source tag will not be added or removed.
     #
-    # @return [Boolean]
+    # @return [Boolean, nil] True if the URL is a bad source, false if it's not a bad source, or nil if we don't know
+    #   whether it's a bad source or not.
     def bad_source?
-      !image_url? && !page_url?
+      recognized? && !image_url? && !page_url?
     end
 
-    # True if the URL is considered a "bad link". A bad link is an image URL that shouldn't be used as the source of a
+    # Determine if the URL is considered a "bad link". A bad link is an image URL that shouldn't be used as the source of a
     # post. For example, Twitter image URLs are bad links because it's not possible to convert Twitter image URLs to the
     # actual Twitter post. A Pixiv image URL is a good link because it is possible to convert Pixiv image URLs to the
     # actual Pixiv post.
     #
-    # Posts will be tagged "bad_link" if this returns true for the post's source URL.
+    # Posts will be tagged "bad_link" if this returns true for the post's source URL. If this returns false, then the
+    # bad_link tag will be removed. If this returns nil, then the bad_link tag will not be added or removed.
     #
-    # @return [Boolean]
+    # @return [Boolean, nil] True if the URL is a bad link, false if it's not a bad link, or nil if we don't know
+    #   whether it's a bad link or not.
     def bad_link?
-      image_url? && page_url.nil?
+      recognized? && image_url? && page_url.nil?
     end
 
     def self.site_name(url)

@@ -24,16 +24,18 @@ class Source::URL::Pinterest < Source::URL
 
     # https://www.pinterest.com/pin/551409548144250908/
     # https://www.pinterest.com/pin/AVBZICDCT7hRTla-jHiJ6w2eVUK1wuq7WRYG8P_uqZIziXisjxatHMA/
-    in _, "pinterest", _, "pin", pin_id
+    # https://www.pinterest.com/pin/580612576989556785/sent/?invite_code=9e94baa7faae405d84a7787593fa46fd&sender=580612714368486682&sfo=1
+    in _, "pinterest", _, "pin", pin_id, *rest
       @pin_id = pin_id
 
     # https://www.pinterest.com/uchihajake/
-    # https://www.pinterest.com/uchihajake/_saved
     # https://www.pinterest.com/uchihajake/hands/
-    in _, "pinterest", _, username, *rest unless username.in?(RESERVED_NAMES)
+    # https://jp.pinterest.com/uchihajake/
+    in _, "pinterest", _, username, *rest unless username.in?(RESERVED_NAMES) || subdomain == "api"
       @username = username
 
     # https://www.pinterest.com/ideas/people/935950727927/
+    # https://api.pinterest.com/url_shortener/4A1N0Rd5W/redirect/
     else
       nil
     end

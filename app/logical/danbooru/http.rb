@@ -128,8 +128,12 @@ module Danbooru
       parsed_request(:post, url, **options)
     end
 
-    def follow(*args)
-      dup.tap { |o| o.http = o.http.follow(*args) }
+    def follow(max_redirects: MAX_REDIRECTS)
+      use(redirector: { max_redirects: })
+    end
+
+    def no_follow
+      disable_feature(:redirector)
     end
 
     def max_size(size)
@@ -158,6 +162,14 @@ module Danbooru
 
     def use(*args)
       dup.tap { |o| o.http = o.http.use(*args) }
+    end
+
+    def disable_feature(*features)
+      dup.tap do |o|
+        options = o.http.default_options.dup
+        options.features = options.features.without(*features)
+        o.http = o.http.branch(options)
+      end
     end
 
     def cache(expires_in)
@@ -194,12 +206,14 @@ module Danbooru
       end
     end
 
-    # @return [Danbooru::URL, nil] Return the URL that the given URL redirects to, or nil on error.
-    def redirect_url(url)
-      response = head(url)
-      return nil unless response.status.in?(200..299)
-
-      Danbooru::URL.parse(response.uri)
+    # Return the URL that the given URL redirects to, or nil on error. This does not follow multiple redirects.
+    #
+    # @param method [String] The HTTP method to use, GET or HEAD. HEAD may be faster, but may fail for some sites.
+    # @return [Danbooru::URL, nil] The URL this URL redirects to, or nil on error.
+    def redirect_url(url, method: "HEAD")
+      response = no_follow.request(method.downcase, url)
+      return nil unless response.status.redirect?
+      Danbooru::URL.parse(response.headers["Location"])
     end
 
     concerning :DownloadMethods do

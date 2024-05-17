@@ -2,6 +2,16 @@ require 'test_helper'
 
 module Sources
   class TwitterTest < ActiveSupport::TestCase
+    context "A Twitter profile picture sample image" do
+      strategy_should_work(
+        "https://pbs.twimg.com/profile_images/417182061145780225/ttN6_CSs_400x400.jpeg",
+        image_urls: %w[https://pbs.twimg.com/profile_images/417182061145780225/ttN6_CSs.jpeg],
+        media_files: [{ file_size: 203_927, width: 1252, height: 1252 }],
+        page_url: nil,
+        profile_urls: %w[https://twitter.com/intent/user?user_id=417182061145780225]
+      )
+    end
+
     context "A https://twitter.com/:username/status/:id url" do
       strategy_should_work(
         "https://twitter.com/motty08111213/status/943446161586733056",
@@ -301,6 +311,16 @@ module Sources
       )
     end
 
+    context "A direct image url with a referer url from a different site" do
+      strategy_should_work(
+        "https://pbs.twimg.com/media/EAjc-OWVAAAxAgQ.jpg",
+        referer: "https://www.pixiv.net/en/artworks/60344190",
+        image_urls: ["https://pbs.twimg.com/media/EAjc-OWVAAAxAgQ.jpg:orig"],
+        media_files: [{ file_size: 842_373 }],
+        page_url: nil
+      )
+    end
+
     context "A deleted tweet" do
       strategy_should_work(
         "https://twitter.com/masayasuf/status/870734961778630656",
@@ -520,6 +540,8 @@ module Sources
       assert(Source::URL.profile_url?("https://fxtwitter.com/i/user/889592953"))
 
       assert_not(Source::URL.profile_url?("https://twitter.com/home"))
+      assert_not(Source::URL.profile_url?("https://t.co/Dxn7CuVErW"))
+      assert_not(Source::URL.profile_url?("https://pic.twitter.com/Dxn7CuVErW"))
 
       assert_not(Source::URL.bad_link?("https://pbs.twimg.com/profile_banners/780804311529906176/1475001696"))
       assert_not(Source::URL.bad_source?("https://pbs.twimg.com/profile_banners/780804311529906176/1475001696"))
@@ -528,9 +550,16 @@ module Sources
 
       assert_nil(Source::URL.parse("https://twitter.com/i/status/1261877313349640194").username)
       assert_nil(Source::URL.parse("https://twitter.com/i/web/status/1261877313349640194").username)
+      assert_nil(Source::URL.parse("https://t.co/Dxn7CuVErW").try(:username))
+      assert_nil(Source::URL.parse("https://pic.twitter.com/Dxn7CuVErW").try(:username))
       assert_equal("BOW999", Source::URL.parse("https://twitter.com/BOW999/status/1261877313349640194").username)
       assert_equal("BOW999", Source::URL.parse("https://twitter.com/@BOW999/status/1261877313349640194").username)
       assert_equal("BOW999", Source::URL.parse("https://twitter.com/@BOW999").username)
+
+      assert_equal("https://twitter.com/BOW999/status/1261877313349640194", Source::URL.parse("https://fixvx.com/BOW999/status/1261877313349640194").page_url)
+      assert_equal("https://twitter.com/BOW999/status/1261877313349640194", Source::URL.parse("https://fixupx.com/BOW999/status/1261877313349640194").page_url)
+      assert_equal("https://twitter.com/BOW999/status/1261877313349640194", Source::URL.parse("https://twittpr.com/BOW999/status/1261877313349640194").page_url)
+      assert_equal("https://twitter.com/BOW999/status/1261877313349640194", Source::URL.parse("https://fxtwitter.com/BOW999/status/1261877313349640194.jpg").page_url)
     end
   end
 end

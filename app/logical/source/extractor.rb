@@ -67,7 +67,15 @@ module Source
 
       @parsed_url = Source::URL.parse(url)
       @parsed_referer = Source::URL.parse(referer_url) if referer_url.present?
-      @parsed_referer = nil unless parsed_url&.site_name == parsed_referer&.site_name && parsed_url&.image_url?
+      @parsed_referer = nil if !allow_referer?
+    end
+
+    # Normally if the main URL and the referer URL are from two different sites, then we ignore the referer URL. For
+    # example, a Twitter image URL with a Pixiv referer URL will ignore the Pixiv referer, because the Twitter image
+    # doesn't belong to a Pixiv post. This allows this behavior to be overidden for extractors that allow referers from
+    # other sites (see Source::Extractor::Google).
+    def allow_referer?
+      parsed_url&.image_url? && parsed_referer&.extractor_class == self.class
     end
 
     # The list of input URLs. Includes both the primary URL and the secondary referer URL, if it exists.
@@ -185,8 +193,10 @@ module Source
     #
     # @return [ActiveRecord::Relation<Artist>]
     def artists
-      if parsed_url&.recognized?
-        Artist.active.has_normalized_url(profile_urls).limit(5)
+      if parsed_url&.profile_url?
+        Artist.active.has_normalized_url([parsed_url.profile_url])
+      elsif parsed_url&.recognized?
+        Artist.active.has_normalized_url(profile_urls)
       else
         ArtistFinder.find_artists(url)
       end
@@ -295,6 +305,22 @@ module Source
     def http_exists?(url)
       return false if url.blank?
       http_downloader.head(url).status.success?
+    end
+
+    # @return [Enumerator] An enumerator that lets you iterate across the chain of parent extractors.
+    def each_parent
+      return enum_for(:each_parent) unless block_given?
+
+      parent = parent_extractor
+      while parent.present?
+        yield parent
+        parent = parent.parent_extractor
+      end
+    end
+
+    # @return [Array<Source::Extractor>] Return the list of parent extractors.
+    def parent_extractors
+      each_parent.to_a
     end
 
     # Convert commentary to dtext by stripping html tags. Sites can override
