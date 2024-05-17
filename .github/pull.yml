@@ -2,4 +2,4 @@ version: "1"
 rules:
   - base: production
     upstream: danbooru:production    # change `wei` to the owner of upstream repo
-    mergeMethod: rebase
+    mergeMethod: merge
