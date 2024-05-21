@@ -94,6 +94,7 @@ module Source
       Source::URL::Note,
       Source::URL::PixivComic,
       Source::URL::NaverBlog,
+      Source::URL::NaverCafe,
       Source::URL::NaverPost,
       Source::URL::Xiaohongshu,
       Source::URL::Patreon,
@@ -103,6 +104,8 @@ module Source
       Source::URL::Youtube,
       Source::URL::Bcy,
       Source::URL::URLShortener,
+      Source::URL::Redgifs,
+      Source::URL::Carrd,
     ]
 
     # Parse a URL into a subclass of Source::URL, or raise an exception if the URL is not a valid HTTP or HTTPS URL.

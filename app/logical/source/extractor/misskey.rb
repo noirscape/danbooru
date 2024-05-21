@@ -11,10 +11,6 @@ class Source::Extractor::Misskey < Source::Extractor
     end
   end
 
-  def page_url
-    parsed_url.page_url || parsed_referer&.page_url
-  end
-
   def profile_url
     if base_url.present? && username.present? && remote_host.present?
       "#{base_url}/@#{username}@#{remote_host}"
@@ -35,20 +31,12 @@ class Source::Extractor::Misskey < Source::Extractor
     [profile_url, account_url, remote_username_url].compact
   end
 
+  def display_name
+    user["name"]&.gsub(/:[a-z0-9@_]+:/i, "")&.normalize_whitespace&.squeeze(" ")&.strip&.presence # strip emoji
+  end
+
   def username
     user["username"] || parsed_url.username || parsed_referer&.username
-  end
-
-  def tag_name
-    username.to_s.downcase.gsub(/\A_+|_+\z/, "").squeeze("_").presence
-  end
-
-  def artist_name
-    user["name"]&.gsub(/:[a-z0-9@_]+:/i, "")&.normalize_whitespace&.squeeze(" ")&.strip # strip emoji
-  end
-
-  def other_names
-    [artist_name, username].compact.uniq(&:downcase)
   end
 
   def user_id

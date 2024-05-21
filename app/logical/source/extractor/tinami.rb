@@ -36,10 +36,6 @@ module Source
         page&.css(".viewbody #controller_model .thumbnail_list").to_a.map { |td| td.attr("sub_id") }
       end
 
-      def page_url
-        parsed_url.page_url || parsed_referer&.page_url
-      end
-
       def tags
         page&.css("#view .tag a[href^='/search/list']").to_a.map do |tag|
           [tag.text, "https://www.tinami.com/search/list?keyword=#{Danbooru::URL.escape(tag.text)}"]
@@ -54,11 +50,7 @@ module Source
         "tinami_#{user_id}" if user_id.present?
       end
 
-      def other_names
-        [artist_name].compact
-      end
-
-      def artist_name
+      def display_name
         page&.at("#view .prof > p > a > strong")&.text
       end
 

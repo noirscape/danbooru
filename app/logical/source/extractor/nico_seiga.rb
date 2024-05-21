@@ -66,7 +66,7 @@ module Source
         "https://seiga.nicovideo.jp/user/illust/#{artist_id}" if artist_id.present?
       end
 
-      def artist_name
+      def display_name
         api_response["nickname"] || user_api_response["nickname"]
       end
 
@@ -81,17 +81,13 @@ module Source
       def dtext_artist_commentary_desc
         DText.from_html(artist_commentary_desc, base_url: "https://seiga.nicovideo.jp") do |element|
           if element.name == "font" && element["color"] == "white"
-            element.name = "spoiler"
+            element.name = "block-spoiler"
           end
         end.gsub(/[^\w]im(\d+)/, ' seiga #\1 ').chomp
       end
 
       def tag_name
         "nicoseiga_#{artist_id}" if artist_id.present?
-      end
-
-      def other_names
-        [artist_name].compact
       end
 
       def tags

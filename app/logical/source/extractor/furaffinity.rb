@@ -19,17 +19,17 @@ class Source::Extractor
       end
     end
 
-    def page_url
-      parsed_url.page_url || parsed_referer&.page_url
-    end
-
     def tags
       tags = html_response&.css(".tags").to_a.map!(&:text).compact.uniq
       tags.map {|tag| [tag, "https://www.furaffinity.net/search/@keywords #{tag}"] }
     end
 
-    def artist_name
-      html_response&.at(".submission-id-sub-container a")&.text || parsed_url.username || parsed_referer&.username
+    def display_name
+      html_response&.at(".submission-id-sub-container a")&.text
+    end
+
+    def username
+      parsed_url.username || parsed_referer&.username
     end
 
     def profile_url

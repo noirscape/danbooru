@@ -13,10 +13,6 @@ module Source
         end
       end
 
-      def page_url
-        parsed_url.page_url || parsed_referer&.page_url
-      end
-
       def profile_url
         parsed_url.profile_url || parsed_referer&.profile_url
       end
@@ -32,12 +28,12 @@ module Source
         ].compact_blank
       end
 
-      def tag_name
-        username
+      def display_name
+        api_response.dig(:user, :name)
       end
 
-      def artist_name
-        api_response.dig(:user, :name)
+      def username
+        parsed_url.username || parsed_referer&.username
       end
 
       def artist_commentary_title
@@ -52,10 +48,6 @@ module Source
         api_response[:project_tags].to_a.map do |tag|
           [tag[:name], "https://picdig.net/projects?search_tag=#{Danbooru::URL.escape(tag[:name])}"]
         end
-      end
-
-      def username
-        parsed_url.username || parsed_referer&.username
       end
 
       def api_url

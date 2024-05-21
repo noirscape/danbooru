@@ -12,16 +12,8 @@ class Source::Extractor::Artistree < Source::Extractor
     end
   end
 
-  def page_url
-    parsed_url.page_url || parsed_referer&.page_url
-  end
-
   def profile_url
     parsed_url.profile_url || parsed_referer&.profile_url
-  end
-
-  def artist_name
-    username
   end
 
   def artist_commentary_title

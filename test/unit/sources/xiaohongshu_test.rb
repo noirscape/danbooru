@@ -48,9 +48,8 @@ module Sources
           page_url: "https://www.xiaohongshu.com/explore/66200ed0000000001c008538",
           profile_url: "https://www.xiaohongshu.com/user/profile/637dc635000000001f01f81b",
           profile_urls: %w[https://www.xiaohongshu.com/user/profile/637dc635000000001f01f81b],
-          artist_name: "MG_G",
-          tag_name: "mg_g",
-          other_names: ["MG_G", "mg_g"],
+          display_name: "MG_G",
+          other_names: ["MG_G"],
           tags: [
             ["军舰", "https://www.xiaohongshu.com/search_result/?keyword=军舰"],
             ["画画", "https://www.xiaohongshu.com/search_result/?keyword=画画"],
@@ -68,6 +67,35 @@ module Sources
         )
       end
 
+      context "A post with /spectrum/ image URLs" do
+        strategy_should_work(
+          "https://www.xiaohongshu.com/explore/650293e4000000001e022308",
+          image_urls: %w[
+            https://ci.xiaohongshu.com/spectrum/1040g0k030p06mpo4k0005ovbk4n9t3fq5ms4iu0
+            https://ci.xiaohongshu.com/spectrum/1040g0k030p06mpkdju005ovbk4n9t3fqveguc70
+          ],
+          media_files: [
+            { file_size: 1_164_038 },
+            { file_size: 930_250 },
+          ],
+          page_url: "https://www.xiaohongshu.com/explore/650293e4000000001e022308",
+          profile_url: "https://www.xiaohongshu.com/user/profile/63eba12e0000000027028dfa",
+          profile_urls: %w[https://www.xiaohongshu.com/user/profile/63eba12e0000000027028dfa],
+          display_name: "三水吉吉",
+          username: nil,
+          tags: [
+            ["绘画", "https://www.xiaohongshu.com/search_result/?keyword=绘画"],
+            ["私人稿件禁止使用", "https://www.xiaohongshu.com/search_result/?keyword=私人稿件禁止使用"],
+            ["立绘", "https://www.xiaohongshu.com/search_result/?keyword=立绘"],
+          ],
+          dtext_artist_commentary_title: "一对立绘",
+          dtext_artist_commentary_desc: <<~EOS.chomp
+            最近画图动力大大up，真的很努力在稿了！！ #绘画[话题]# #私人稿件禁止使用[话题]# #立绘[话题]#
+            ps：暂不接稿~
+          EOS
+        )
+      end
+
       context "A deleted or nonexistent post" do
         strategy_should_work(
           "https://www.xiaohongshu.com/explore/999999999",
@@ -76,8 +104,7 @@ module Sources
           page_url: "https://www.xiaohongshu.com/explore/999999999",
           profile_url: nil,
           profile_urls: %w[],
-          artist_name: nil,
-          tag_name: nil,
+          display_name: nil,
           other_names: [],
           tags: [],
           dtext_artist_commentary_title: "",

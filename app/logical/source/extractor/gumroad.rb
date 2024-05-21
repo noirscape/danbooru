@@ -14,24 +14,22 @@ class Source::Extractor
       end
     end
 
-    def page_url
-      parsed_url.page_url || parsed_referer&.page_url
-    end
-
     def profile_url
-      if api_response.dig("product", "seller", "profile_url").present? # product
-        Source::URL.profile_url(api_response.dig("product", "seller", "profile_url"))
-      elsif api_response.dig("creator_profile", "subdomain").present? # post
-        "https://#{api_response.dig("creator_profile", "subdomain")}"
-      end
+      "https://#{username}.gumroad.com" if username.present?
     end
 
-    def artist_name
+    def display_name
       api_response.dig("product", "seller", "name") || api_response.dig("creator_profile", "name")
     end
 
-    def other_names
-      [artist_name].compact_blank
+    def username
+      if api_response.dig("product", "seller", "profile_url").present? # product
+        Source::URL.parse(api_response.dig("product", "seller", "profile_url"))&.username
+      elsif api_response.dig("creator_profile", "subdomain").present? # post
+        api_response.dig("creator_profile", "subdomain")&.delete_suffix(".gumroad.com") # post
+      else
+        parsed_url.username || parsed_referer&.username
+      end
     end
 
     def artist_commentary_title

@@ -2,6 +2,7 @@
 
 # @see Source::URL::Xiaohongshu
 # @see https://github.com/NanmiCoder/MediaCrawler/blob/main/media_platform/xhs/client.py
+# @see https://github.com/JoeanAmier/XHS-Downloader
 class Source::Extractor::Xiaohongshu < Source::Extractor
   def image_urls
     if parsed_url.full_image_url.present?
@@ -15,15 +16,11 @@ class Source::Extractor::Xiaohongshu < Source::Extractor
     end
   end
 
-  def page_url
-    parsed_url.page_url || parsed_referer&.page_url
-  end
-
   def profile_url
     "https://www.xiaohongshu.com/user/profile/#{user_id}" if user_id.present?
   end
 
-  def artist_name
+  def display_name
     note.dig("user", "nickname")
   end
 
@@ -63,5 +60,10 @@ class Source::Extractor::Xiaohongshu < Source::Extractor
 
   memoize def page_json
     page&.at('script[text()*="__INITIAL_STATE__"]')&.text&.slice(/{.*}/)&.gsub("undefined", "null")&.parse_json || {}
+  end
+
+  def http_downloader
+    # http://sns-webpic-qc.xhs.cdn.com URLs fail with a spoofed referer. Ex: http://sns-webpic-qc.xhscdn.com/202405210748/f4ece3f93e230347cacc53e8628c35be/spectrum/1040g0k030p06mpo4k0005ovbk4n9t3fq5ms4iu0!nd_dft_wlteh_jpg_3
+    super.disable_feature(:spoof_referrer)
   end
 end

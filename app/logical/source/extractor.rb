@@ -11,8 +11,8 @@
 # * page_url - The page containing the images. Used for post sources.
 # * profile_url - The URL of the artist's profile page. Used for artist finding.
 # * profile_urls - Extra profile URLs to add to the artist entry.
-# * tag_name - The artist's login name. Used as the default name for new artist tags.
-# * artist_name - The artist's display name. Used as an other name in new artist entries.
+# * display_name - The artist's display name, if they have one.
+# * username - The artist's username, if they have one.
 # * other_names - Extra names used in new artist entries.
 # * tags - The artist's tags for the work. Used by translated tags.
 # * artist_commentary_title - The artist's title of the work. Used for artist commentaries.
@@ -25,7 +25,7 @@ module Source
     # The http timeout to download a file.
     DOWNLOAD_TIMEOUT = 60
 
-    attr_reader :url, :referer_url, :parsed_url, :parsed_referer, :parent_extractor
+    attr_reader :url, :referer_url, :parsed_url, :parsed_referer, :parent_extractor, :options
 
     delegate :site_name, to: :parsed_url
 
@@ -46,12 +46,11 @@ module Source
     # @param url [String] The URL to extract information from.
     # @param referer_url [String, nil] The page URL if `url` is an image URL.
     # @param default_extractor [Source::Extractor, nil] The extractor to use if no other extractor is found for this URL.
-    # @param parent_extractor [Source::Extractor, nil] The parent of this extractor, if this is a sub extractor.
     # @return [Source::Extractor, nil] The extractor, or nil if the URL couldn't be parsed and the default extractor is nil.
-    def self.find(url, referer_url = nil, default_extractor: Extractor::Null, parent_extractor: nil)
+    def self.find(url, referer_url = nil, default_extractor: Extractor::Null, **options)
       parsed_url = Source::URL.parse(url)
       parsed_referer = Source::URL.parse(referer_url)
-      parsed_url&.extractor(referer_url: parsed_referer, parent_extractor:) || default_extractor&.new(url, referer_url: referer_url, parent_extractor:)
+      parsed_url&.extractor(referer_url: parsed_referer, **options) || default_extractor&.new(url, referer_url: referer_url, **options)
     end
 
     # Initialize an extractor. Normally one should call `Source::Extractor.find`
@@ -60,10 +59,12 @@ module Source
     # @param url [Source::URL, String] The URL to extract information form.
     # @param referer_url [Source::URL, String, nil] The page URL if `url` is an image URL.
     # @param parent_extractor [Source::Extractor, nil] The parent of this extractor, if this is a sub extractor.
-    def initialize(url, referer_url: nil, parent_extractor: nil)
+    # @param options [Hash] Additional extractor-specific options to pass to the extractor.
+    def initialize(url, referer_url: nil, parent_extractor: nil, **options)
       @url = url.to_s
       @referer_url = referer_url&.to_s
       @parent_extractor = parent_extractor
+      @options = options
 
       @parsed_url = Source::URL.parse(url)
       @parsed_referer = Source::URL.parse(referer_url) if referer_url.present?
@@ -107,25 +108,56 @@ module Source
     #
     # @return [String, nil]
     def page_url
-      nil
+      parsed_url.page_url || parsed_referer&.page_url
     end
 
-    # A name to suggest as the artist's tag name when creating a new artist.
-    # This should usually be the artist's login name. It should be plain ASCII,
-    # hopefully unique, and it should follow the rules for tag names (see
-    # TagNameValidator).
+    # A name to suggest as the artist's tag name when creating a new artist. It should follow the rules for tag names
+    # (see TagNameValidator) and hopefully be unique.
+    #
+    # By default, it's based on the artist's username, if they have one and it can be converted to a valid tag name,
+    # otherwise on their display name.
+    #
+    # This is only used for suggesting tag names for new artists, and nothing else.
     #
     # @return [String, nil]
     def tag_name
-      Tag.normalize_name(artist_name) if artist_name.present? && artist_name.match?(/\A[a-zA-Z0-9._-]+\z/)
+      self.class.normalize_tag_name(username) || self.class.normalize_tag_name(display_name)
     end
 
-    # The artists's primary name. If an artist has both a display name and a
-    # login name, this should be the display name. This will be used as an
-    # other name for new artist entries.
+    # The artists's primary name on the site. If the site has both display names and usernames, this should be their
+    # display name. If the site only has usernames, this should be their username.
     #
     # @return [String, nil]
     def artist_name
+      display_name || username
+    end
+
+    # The artists's display name, if the site has display names.
+    #
+    # On most sites, the display name has fewer character restrictions than usernames, can be changed at will, and is
+    # not unique to the user. Often it can contain CJK characters or emojis, so it can be difficult to convert to a tag
+    # name.
+    #
+    # This will be listed as an other name in the artist's artist entry, and will be the second choice to suggest as
+    # their tag name, after their username.
+    #
+    # @return [String, nil]
+    def display_name
+      nil
+    end
+
+    # The artist's username, if the site has usernames. This might also be called their login name, screen name, account
+    # name, or handle.
+    #
+    # On most sites, the username is restricted to letters, numbers, and a few punctuation characters (usually "-", "_",
+    # and "."). Usernames are usually unique for the site, but usually they can be changed by the user, so two different
+    # users could have the same username at different points in time.
+    #
+    # This will be listed as an other name in the artist's artist entry, and will be the first choice to suggest as
+    # their tag name.
+    #
+    # @return [String, nil]
+    def username
       nil
     end
 
@@ -134,7 +166,15 @@ module Source
     #
     # @return [Array<String>]
     def other_names
-      [artist_name, tag_name].compact.uniq
+      [artist_name, display_name, username].compact_blank.uniq(&:downcase)
+    end
+
+    # Convert a string to a tag name, or return nil if it can't be converted to a valid tag name.
+    #
+    # @param name [String, nil] An artist name to convert to a tag name.
+    # @return [String, nil] The tag name, or nil if it can't be converted to a valid tag name.
+    def self.normalize_tag_name(name)
+      name.to_s.downcase.gsub(/[^a-z0-9._-]/, "_").squeeze("_").gsub(/^[^a-z0-9]|[^a-z0-9]$/, "").presence
     end
 
     # A link to the artist's profile page on the site. This will be used for

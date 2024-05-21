@@ -15,10 +15,6 @@ class Source::Extractor::Blogger < Source::Extractor
     end
   end
 
-  def page_url
-    parsed_url.page_url || parsed_referer&.page_url
-  end
-
   def profile_url
     blog_url
   end
@@ -27,16 +23,12 @@ class Source::Extractor::Blogger < Source::Extractor
     [blog_url, blog_author_url].compact.uniq
   end
 
-  def artist_name
+  def display_name
     post.dig("author", "displayName") || page.dig("author", "displayName")
   end
 
-  def tag_name
-    blog_name.to_s.downcase.gsub(/\A_+|_+\z/, "").squeeze("_").presence
-  end
-
-  def other_names
-    [artist_name, blog_name].compact_blank.uniq(&:downcase)
+  def username
+    blog_name
   end
 
   def tags

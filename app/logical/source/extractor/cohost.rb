@@ -14,21 +14,13 @@ module Source
         end
       end
 
-      def page_url
-        parsed_url.page_url || parsed_referer&.page_url
-      end
-
-      def artist_name
+      def display_name
         # Display name can be blank (example: https://cohost.org/fish)
-        post.dig("postingProject", "displayName").presence || username
+        post.dig("postingProject", "displayName").presence
       end
 
-      def tag_name
-        username.to_s.downcase.gsub(/\A_+|_+\z/, "").squeeze("_").presence
-      end
-
-      def other_names
-        [artist_name, username].compact_blank.uniq
+      def username
+        post.dig("postingProject", "handle")
       end
 
       def profile_url
@@ -87,10 +79,6 @@ module Source
         post["tags"].to_a.map do |tag|
           [tag, "https://cohost.org/rc/tagged/#{Danbooru::URL.escape(tag)}"]
         end
-      end
-
-      def username
-        post.dig("postingProject", "handle")
       end
 
       memoize def post

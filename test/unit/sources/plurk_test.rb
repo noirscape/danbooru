@@ -20,7 +20,8 @@ module Sources
         page_url: "https://www.plurk.com/p/om6zv4",
         profile_url: "https://www.plurk.com/redeyehare",
         profile_urls: %w[https://www.plurk.com/redeyehare],
-        artist_name: "紅眼兔@不務正業",
+        display_name: "紅眼兔@不務正業",
+        username: "redeyehare",
         tag_name: "redeyehare",
         other_names: ["紅眼兔@不務正業", "redeyehare"],
         tags: [],
@@ -52,13 +53,15 @@ module Sources
         page_url: "https://www.plurk.com/p/omc64y",
         profile_url: "https://www.plurk.com/BOW99",
         profile_urls: %w[https://www.plurk.com/BOW99],
-        artist_name: "BOW🔞",
+        display_name: "BOW🔞",
+        username: "BOW99",
         tag_name: "bow99",
         other_names: ["BOW🔞", "BOW99"],
         tags: [],
         dtext_artist_commentary_title: "",
         dtext_artist_commentary_desc: <<~EOS.chomp
           [十月號]
+
           <https://images.plurk.com/yfnumBJqqoQt50Em6xKwf.png>
 
           <https://images.plurk.com/5NaqqO3Yi6bQW1wKXq1Dc2.png>
@@ -100,7 +103,8 @@ module Sources
         page_url: "https://www.plurk.com/p/omc64y?r=7605743002",
         profile_url: "https://www.plurk.com/BOW99",
         profile_urls: %w[https://www.plurk.com/BOW99],
-        artist_name: "BOW🔞",
+        display_name: "BOW🔞",
+        username: "BOW99",
         tag_name: "bow99",
         other_names: ["BOW🔞", "BOW99"],
         tags: [],
@@ -117,7 +121,8 @@ module Sources
         page_url: "https://www.plurk.com/p/3fqo1xpr2g",
         profile_url: "https://www.plurk.com/SollyzSundyz",
         profile_urls: %w[https://www.plurk.com/SollyzSundyz],
-        artist_name: "SollyzSundyz",
+        display_name: "SollyzSundyz",
+        username: "SollyzSundyz",
         tag_name: "sollyzsundyz",
         other_names: ["SollyzSundyz"],
         tags: [
@@ -130,7 +135,9 @@ module Sources
 
           Smily~ uncle Wediz
 
-          support my OC here :<https://www.patreon.com/sollyz_gallery>
+          support my OC here :
+
+          <https://www.patreon.com/sollyz_gallery>
 
           #furry #wediz
         EOS
@@ -146,7 +153,8 @@ module Sources
         page_url: "https://www.plurk.com/p/i701j1",
         profile_url: "https://www.plurk.com/NetKidz",
         profile_urls: %w[https://www.plurk.com/NetKidz],
-        artist_name: "18+NetKidz",
+        display_name: "18+NetKidz",
+        username: "NetKidz",
         tag_name: "netkidz",
         other_names: ["18+NetKidz", "NetKidz"],
         tags: [],
@@ -154,6 +162,7 @@ module Sources
         dtext_artist_commentary_desc: <<~EOS.chomp
           <https://4.bp.blogspot.com/-HPXVpK9ukb4/USX0700w-uI/AAAAAAAALok/7MSx8yVhR7M/s1600/18_GWTB6.jpg> #隨爆而逝
           感謝噗友 "emilwu":[http://www.plurk.com/emilwu] 整理:
+
           <https://imgur.com/a/Y8YFV>
         EOS
       )

@@ -15,16 +15,12 @@ class Source::Extractor::Inkbunny < Source::Extractor
     end
   end
 
-  def page_url
-    parsed_url.page_url || parsed_referer&.page_url
-  end
-
-  def artist_name
-    submission[:username]
+  def username
+    submission[:username] || parsed_url.username || parsed_referer&.username
   end
 
   def profile_url
-    "https://inkbunny.net/#{submission[:username]}" if submission.present?
+    "https://inkbunny.net/#{username}" if username.present?
   end
 
   def user_url
