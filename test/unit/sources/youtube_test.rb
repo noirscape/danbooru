@@ -25,9 +25,9 @@ module Sources
 
       context "A channel banner sample image URL" do
         strategy_should_work(
-          "https://yt3.googleusercontent.com/5eDKuCEpw0-fZVUX29AF7XCAQY7t3FeocoiBrmQd1PGQemBcCQZlkqazoDwSvR7mbEc_IiRgNko=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
-          image_urls: %w[https://yt3.googleusercontent.com/5eDKuCEpw0-fZVUX29AF7XCAQY7t3FeocoiBrmQd1PGQemBcCQZlkqazoDwSvR7mbEc_IiRgNko=d],
-          media_files: [{ file_size: 3_431_132 }],
+          "https://yt3.googleusercontent.com/lJ61iTeHxuSjr1hqx032Z7hIcaFEa9vFAMlh_r8QExwcw8M6-bI9MVsrb6f6H5yAcqPd2QPp=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+          image_urls: %w[https://yt3.googleusercontent.com/lJ61iTeHxuSjr1hqx032Z7hIcaFEa9vFAMlh_r8QExwcw8M6-bI9MVsrb6f6H5yAcqPd2QPp=d],
+          media_files: [{ file_size: 198_493 }],
           page_url: nil
         )
       end
@@ -108,6 +108,36 @@ module Sources
             (I already have the storyboard ready~)
 
             I'll work on it after travel over. See you later :)
+          EOS
+        )
+      end
+
+      context "A community post with hashtags and external links" do
+        strategy_should_work(
+          "https://www.youtube.com/post/UgkxPM838FMMDlZd0fooRblYR4zysjfbgYhv",
+          image_urls: %w[https://yt3.ggpht.com/-e3T7-xK0aboSxZZpSI4fXnerhFCXbCuL96zPIXgDd4u43jLsaKi4PrkPDn3BRiRTVXzD_YBUoLlt50=d],
+          media_files: [{ file_size: 1_379_490 }],
+          page_url: "https://www.youtube.com/post/UgkxPM838FMMDlZd0fooRblYR4zysjfbgYhv",
+          profile_urls: %w[https://www.youtube.com/@RitaKamishiro https://www.youtube.com/channel/UCBJFsaCvgBa1a9BnEaxu97Q],
+          display_name: "Rita Kamishiro / 神代りた",
+          username: "RitaKamishiro",
+          tags: [
+            ["kamiscribble", "https://www.youtube.com/hashtag/kamiscribble"],
+            ["神スクリブル", "https://www.youtube.com/hashtag/神スクリブル"],
+            ["rkangel", "https://www.youtube.com/hashtag/rkangel"],
+            ["rkエンジェル", "https://www.youtube.com/hashtag/rkエンジェル"],
+            ["kameme", "https://www.youtube.com/hashtag/kameme"],
+            ["カミーム", "https://www.youtube.com/hashtag/カミーム"],
+          ],
+          dtext_artist_commentary_title: "",
+          dtext_artist_commentary_desc: <<~EOS.chomp
+            💠Weekly Schedule 5.20.2024💠
+            My Mental Health Awareness Month 2024 event is this week! Be sure to join us for the panels and charity concert~
+
+            🎨: <https://x.com/popopopopo623>
+            Fanart: "#Kamiscribble":[https://www.youtube.com/hashtag/kamiscribble] "#神スクリブル":[https://www.youtube.com/hashtag/神スクリブル]
+            Fandom: "#RKangel":[https://www.youtube.com/hashtag/rkangel] "#RKエンジェル":[https://www.youtube.com/hashtag/rkエンジェル]
+            Memes: "#KaMEME":[https://www.youtube.com/hashtag/kameme] "#カミーム":[https://www.youtube.com/hashtag/カミーム]
           EOS
         )
       end

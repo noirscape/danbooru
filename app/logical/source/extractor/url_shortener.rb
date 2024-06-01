@@ -5,7 +5,7 @@
 # TODO: Add more shorteners from https://wiki.archiveteam.org/index.php/URLTeam. Use data dumps to unshorten dead URLs?
 class Source::Extractor::URLShortener < Source::Extractor
   delegate :page_url, :profile_url, :artist_name, :display_name, :username, :tag_name, :artist_commentary_title, :artist_commentary_desc, :dtext_artist_commentary_title, :dtext_artist_commentary_desc, to: :sub_extractor, allow_nil: true
-  delegate :domain, :site, :host, :path, :path_segments, to: :parsed_url
+  delegate :domain, :site, :host, :path, :path_segments, :params, to: :parsed_url
 
   def image_urls
     sub_extractor&.image_urls || []
@@ -35,15 +35,31 @@ class Source::Extractor::URLShortener < Source::Extractor
   end
 
   memoize def redirect_url
-    https_url = URI.join("https://#{host}", path)
+    https_url = Addressable::URI.join("https://#{host}", path)
 
     case [domain, *path_segments]
+
+    # curl -v https://amzn.asia/bGjatHL
+    # Returns 301 on success and 404 on error. Doesn't support HEAD.
+    in "amzn.asia", *rest
+      http.redirect_url(https_url, method: "GET")&.to_s
 
     # curl -I https:///amzn.to/2oaTatI
     # Returns 301 on success and a 302 redirect to http://www.amazon.com on error.
     in "amzn.to", id
       response = http.no_follow.head(https_url)
       response.headers["Location"] if response.status.code == 301
+
+    # curl -I https://hoyo.link/aifgFBAL
+    # curl -I https://hoyo.link/80GCFBAL?q=25tufAgwB8N
+    in "hoyo.link", id
+      if params[:q].present?
+        url = http.redirect_url("https://bbs-api-os.hoyolab.com/community/misc/api/transit?q=#{params[:q]}", method: "GET")
+        url&.params&.dig(:url) || url&.to_s
+      else
+        url = http.redirect_url("https://sg-public-api.hoyoverse.com/common/short_link_user/v1/transit?code=#{id}", method: "GET").to_s
+        url unless url == "https://webstatic.hoyoverse.com/short_link/404_v2.html"
+      end
 
     # curl -v https://naver.me/FABhCw8Z
     # HEAD not supported; https://naver.me redirects to http://naver.me; returns 307 on success and 404 on error.
@@ -58,6 +74,11 @@ class Source::Extractor::URLShortener < Source::Extractor
       response = http.no_follow.head("https://api.pinterest.com/url_shortener/#{id}/redirect/")
       url = response.headers["Location"] if response.status.redirect?
       url unless url.in?(%W[https://api.pinterest.com/url_shortener/#{id}/redirect/None https://www.pinterest.com])
+
+    # curl -I https://posty.pe/343rpc
+    in "posty.pe", id
+      url = http.redirect_url(https_url)&.to_s
+      url unless url.in?(%w[https://www.postype.com https://www.postype.com/404])
 
     # curl -I https://skfb.ly/GXzZ
     # https://skfb.ly/GXzZ -> https://sketchfab.com:443/s/GXzZa -> https://sketchfab.com/3d-models/my-dnd-map-falkirk-91a1199bda5e45cb84260bac20502f28
@@ -80,8 +101,16 @@ class Source::Extractor::URLShortener < Source::Extractor
     # curl -I http://xhslink.com/WNd9gI
     # Returns 307 on success, 307 redirect to http://www.xiaohongshu.com on error, and 500 if id is too long.
     in "xhslink.com", id
+      # http://xhslink.com/ErpbmK，复制本条信息，打开【小红书】App查看精彩内容！
       url = http.redirect_url(https_url)&.to_s
       url unless url == "http://www.xiaohongshu.com"
+
+    # curl -v https://t.cn/A6pONxY1 # -> https://video.weibo.com/show?fid=1034:4914351942074379
+    # Returns 302 redirect for trusted URLs, 200 success with Location header for untrusted URLs, and 302 redirect to http://weibo.com/sorry on error. Requires browser user agent and GET method.
+    in "t.cn", id
+      response = http.no_follow.get(https_url)
+      url = response.headers["Location"] if response.status.code.in?(200..399)
+      url unless url == "http://weibo.com/sorry"
 
     # curl -I https://t.co/Dxn7CuVErW
     # curl -I https://pic.twitter.com/Dxn7CuVErW

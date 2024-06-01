@@ -108,6 +108,10 @@ module Source
       Source::URL::Carrd,
       Source::URL::Toyhouse,
       Source::URL::Skland,
+      Source::URL::Miyoushe,
+      Source::URL::Grafolio,
+      Source::URL::Kakao,
+      Source::URL::Tistory,
     ]
 
     # Parse a URL into a subclass of Source::URL, or raise an exception if the URL is not a valid HTTP or HTTPS URL.
@@ -318,6 +322,12 @@ module Source
     # Subclasses should implement this to parse and extract any useful information from
     # the URL. This is called when the URL is initialized.
     protected def parse
+    end
+
+    def inspect
+      variables = instance_values.without("url").reject { |key, _| key.starts_with?("_memoized") }.compact_blank
+      state = variables.map { |name, value| "@#{name}=#{value.inspect}" }.join(" ")
+      "#<#{self.class.name} #{state}>"
     end
   end
 end
