@@ -9,7 +9,7 @@ module Source
             def image_urls
                 paths = []
                 paths << api_response.dig("file", "path")
-                data["attachments"].each do |attachment|
+                api_response["attachments"].each do |attachment|
                     paths << attachment["path"]
                 end
 
@@ -46,11 +46,11 @@ module Source
             end
 
             memoize def api_response
-            if enough_data.present?
-                http.cache(1.minute).parsed_get("https://kemono.su/api/v1/#{service_name}/user/#{user_id}/post/#{post_id}") || {}
-            else
-                {}
-            end
+                if enough_data.present?
+                    http.cache(1.minute).parsed_get("https://kemono.su/api/v1/#{service_name}/user/#{user_id}/post/#{post_id}") || {}
+                else
+                    {}
+                end
             end
 
             memoize def artist_response
