@@ -215,7 +215,22 @@ configs:
 volumes:
   danbooru-images:
     name: ${COMPOSE_PROJECT_NAME}-images
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DANBOORU_STORAGE_PATH}/images
   danbooru-data:
     name: ${COMPOSE_PROJECT_NAME}-data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DANBOORU_STORAGE_PATH}/images
   iqdb-data:
     name: ${COMPOSE_PROJECT_NAME}-iqdb-data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DANBOORU_STORAGE_PATH}/images
