@@ -3,7 +3,7 @@
 class Source::URL::Kemono < Source::URL
   attr_reader :service, :user_id, :post_id, :file_hash, :file_name
 
-  def match?(url)
+  def self.match?(url)
     url.domain.in?(%w[kemono.su kemono.party])
   end
 
