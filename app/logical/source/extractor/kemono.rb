@@ -42,7 +42,7 @@ module Source
                 if service_name.present?
                     tags.push(service_name.concat("_reward"))
                 end
-                tags
+                return tags
             end
 
             memoize def api_response
