@@ -23,7 +23,7 @@ class Source::URL::Kemono < Source::URL
 
     in _, "kemono.su", "data", *_, /^(?<file_hash>[a-f0-9]{64})\.\w+$/ => file_hash
       @file_hash = file_hash
-      @file_name = query_params[:f]    
+      @file_name = url.query_values[:f]
 
     else
       nil
