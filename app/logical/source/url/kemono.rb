@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Source::URL::Kemono < Source::URL
-  attr_reader :service, :user_id, :post_id, :file_hash, :file_name
+  attr_reader :service, :user_id, :post_id
 
   def self.match?(url)
     url.domain.in?(%w[kemono.su kemono.party])
@@ -20,10 +20,6 @@ class Source::URL::Kemono < Source::URL
       @service = service
       @user_id = user_id
       @post_id = post_id
-
-    in _, "kemono.su", "data", *_, /^(?<file_hash>[a-f0-9]{64})\.\w+$/ => file_hash
-      @file_hash = file_hash
-      @file_name = url.params[:f]
 
     else
       nil
