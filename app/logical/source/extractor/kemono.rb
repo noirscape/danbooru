@@ -21,11 +21,11 @@ module Source
             end
     
             def page_url
-                "https://kemono.su/#{service_name}/user/#{user_id}/post/#{post_id}" if enough_data.present?
+                "https://kemono.su/#{service_name}/user/#{user_id}/post/#{post_id}" if enough_page_data.present?
             end
 
             def profile_url
-                "https://kemono.su/#{service_name}/user/#{user_id}" if enough_data.present?
+                "https://kemono.su/#{service_name}/user/#{user_id}" if enough_profile_data.present?
             end
 
             def display_name
@@ -50,7 +50,7 @@ module Source
             end
 
             memoize def api_response
-                if enough_data.present?
+                if enough_page_data.present?
                     http.cache(1.minute).parsed_get("https://kemono.su/api/v1/#{service_name}/user/#{user_id}/post/#{post_id}") || {}
                 else
                     {}
@@ -62,8 +62,12 @@ module Source
             end
     
             concerning :HelperMethods do
-                def enough_data
-                    user_id.present? && post_id.present? && service_name.present?
+                def enough_page_data
+                    service.present? && user_id.present? && post_id.present?
+                end
+            
+                def enough_profile_data
+                    service.present? && user_id.present?
                 end
 
                 def service_name
