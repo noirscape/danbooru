@@ -28,4 +28,20 @@ class Source::URL::Kemono < Source::URL
       nil
     end
   end
+
+  def page_url
+    "https://kemono.su/#{service}/user/#{user_id}/post/#{post_id}" if enough_page_data?
+  end
+
+  def profile_url
+    "https://kemono.su/#{service}/user/#{user_id}" if enough_profile_data?
+  end
+
+  def enough_data?
+    service.present? && user_id.present? && post_id.present?
+  end
+
+  def enough_page_data?
+    service.present? && user_id.present?
+  end
 end
