@@ -4,6 +4,11 @@ class Source::URL::Kemono < Source::URL
   attr_reader :service, :user_id, :post_id
 
   def self.match?(url)
+    uri = URI.parse(url)
+    host_parts = uri.host.split('.')
+
+    return false if host_parts.length > 2
+
     url.domain.in?(%w[kemono.su kemono.party])
   end
 
