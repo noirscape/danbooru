@@ -38,7 +38,11 @@ module Source
             end
 
             def artist_commentary_desc
-                api_response.dig("description")
+                api_response.dig("content")
+            end
+
+            def dtext_artist_commentary_desc
+                DText.from_html(artist_commentary_desc, base_url: "https://kemono.su")&.strip
             end
 
             def tags
