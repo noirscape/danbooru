@@ -291,7 +291,7 @@ class Post < ApplicationRecord
     end
 
     def is_approvable?(user = CurrentUser.user)
-      (!is_active? && uploader != user) || policy(user).can_approve_own_uploads?
+      (!is_active? && uploader != user) || user.is_admin?
     end
 
     def autoban
