@@ -8,7 +8,7 @@ module Source
         class Kemono < Source::Extractor
             def image_urls
                 if parsed_url.direct_image_link.present?
-                    [parsed_url.direct_image_link]
+                    return [parsed_url.direct_image_link]
                 end
 
                 paths = []
