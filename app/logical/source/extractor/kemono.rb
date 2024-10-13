@@ -29,7 +29,7 @@ module Source
             end
 
             def display_name
-                entry = artist_response.find { |item| item["id"] == user_id && item["service"] == service_name }
+                entry = artist_response.find { |item| item["user"] == user_id && item["service"] == service_name }
                 entry ? entry["name"] : nil
             end
 
@@ -44,7 +44,7 @@ module Source
             def tags
                 tags = ["paid_reward"]
                 if service_name.present?
-                    tags.push(service_name.concat("_reward"))
+                    tags.push(service_name + "_reward")
                 end
                 return tags
             end
