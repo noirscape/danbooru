@@ -29,7 +29,7 @@ module Source
             end
 
             def display_name
-                entry = artist_response.find { |item| item["user"] == user_id && item["service"] == service_name }
+                entry = artist_response.find { |item| item["id"] == user_id && item["service"] == service_name }
                 entry ? entry["name"] : nil
             end
 
