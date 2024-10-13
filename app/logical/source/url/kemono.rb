@@ -41,7 +41,7 @@ class Source::URL::Kemono < Source::URL
     service.present? && user_id.present? && post_id.present?
   end
 
-  def enough_page_data?
+  def enough_profile_data?
     service.present? && user_id.present?
   end
 end
