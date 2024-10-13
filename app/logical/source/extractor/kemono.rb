@@ -63,11 +63,11 @@ module Source
     
             concerning :HelperMethods do
                 def enough_page_data
-                    service.present? && user_id.present? && post_id.present?
+                    service_name.present? && user_id.present? && post_id.present?
                 end
             
                 def enough_profile_data
-                    service.present? && user_id.present?
+                    service_name.present? && user_id.present?
                 end
 
                 def service_name
