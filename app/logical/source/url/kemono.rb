@@ -37,7 +37,7 @@ class Source::URL::Kemono < Source::URL
     "https://kemono.su/#{service}/user/#{user_id}" if enough_profile_data?
   end
 
-  def enough_data?
+  def enough_page_data?
     service.present? && user_id.present? && post_id.present?
   end
 
