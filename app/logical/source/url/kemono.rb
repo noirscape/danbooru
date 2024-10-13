@@ -1,14 +1,9 @@
 # frozen_string_literal: true
 
 class Source::URL::Kemono < Source::URL
-  attr_reader :service, :user_id, :post_id
+  attr_reader :service, :user_id, :post_id, :direct_image_link
 
   def self.match?(url)
-    uri = URI.parse(url)
-    host_parts = uri.host.split('.')
-
-    return false if host_parts.length > 2
-
     url.domain.in?(%w[kemono.su kemono.party])
   end
 
@@ -25,6 +20,9 @@ class Source::URL::Kemono < Source::URL
       @service = service
       @user_id = user_id
       @post_id = post_id
+
+    in _, "kemono.su", "data", *_, /^(?<file_hash>[a-f0-9]{64})\.\w+$/ => file_hash
+      @direct_image_link = url
 
     else
       nil
